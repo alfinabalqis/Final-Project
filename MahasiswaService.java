@@ -1,5 +1,5 @@
+import java.util.Map;
 import java.util.HashMap;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,13 +8,15 @@ import java.util.List;
  */
 public class MahasiswaService {
     // Hash Table utama dengan NIM sebagai key dan Mahasiswa sebagai value
-    private HashMap<String, Mahasiswa> dataMahasiswa;
+    private Map<String, Mahasiswa> dataMahasiswa;
+    private final MahasiswaBST indexByNim;
     
     /**
      * Constructor untuk inisialisasi Hash Table
      */
     public MahasiswaService() {
         this.dataMahasiswa = new HashMap<>();
+        this.indexByNim = new MahasiswaBST();
     }
     
     /**
@@ -34,7 +36,7 @@ public class MahasiswaService {
         
         // Tambahkan ke Hash Table utama
         dataMahasiswa.put(nim, mahasiswa);
-        
+        indexByNim.insert(nim, mahasiswa);
         System.out.println("Berhasil menambahkan mahasiswa: " + mahasiswa);
         return true;
     }
@@ -47,6 +49,10 @@ public class MahasiswaService {
      */
     public Mahasiswa cariByNim(String nim) {
         return dataMahasiswa.get(nim);
+    }
+
+    public Mahasiswa cariByNimBST(String nim) {
+        return indexByNim.search(nim);
     }
     
     /**
@@ -64,7 +70,7 @@ public class MahasiswaService {
         
         // Update data utama
         dataMahasiswa.put(nim, mahasiswaBaru);
-        
+        indexByNim.insert(nim, mahasiswaBaru);
         System.out.println("Berhasil memperbarui data mahasiswa: " + mahasiswaBaru);
         return true;
     }
@@ -84,6 +90,7 @@ public class MahasiswaService {
         
         // Hapus dari Hash Table utama
         dataMahasiswa.remove(nim);
+        indexByNim.delete(nim);
         
         System.out.println("Berhasil menghapus mahasiswa: " + mahasiswa);
         return true;
@@ -106,5 +113,20 @@ public class MahasiswaService {
             System.out.println(mahasiswa);
         }
         System.out.println("----------------------------------------");
+    }
+
+    public void tampilkanSemuaMahasiswaTerurutNim() {
+        List<Mahasiswa> list = indexByNim.inorder();
+        if (list.isEmpty()) {
+            System.out.println("Belum ada data mahasiswa yang terdaftar.");
+            return;
+        }
+        System.out.println("\n=== DAFTAR SEMUA MAHASISWA (Terurut NIM - BST) ===");
+        System.out.println("---------------------------------------------------");
+        for (Mahasiswa m : list) {
+            System.out.println(m);
+        }
+        System.out.println("---------------------------------------------------");
+        System.out.println("Total: " + list.size());
     }
 }

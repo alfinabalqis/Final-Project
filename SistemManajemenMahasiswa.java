@@ -1,24 +1,23 @@
 import java.util.Scanner;
-import java.util.List;
 
 public class SistemManajemenMahasiswa {
     private static MahasiswaService service = new MahasiswaService();
     private static Scanner scanner = new Scanner(System.in);
-    
+
     public static void main(String[] args) {
         inisialisasiDataSample();
         clearScreen();
-        
+
         System.out.println("==========================================================");
-        System.out.println("    SISTEM MANAJEMEN DATA MAHASISWA DENGAN HASH TABLE    ");
+        System.out.println("    SISTEM MANAJEMEN DATA MAHASISWA  ");
         System.out.println("==========================================================");
-        
+
         boolean running = true;
-        
+
         while (running) {
             tampilkanMenu();
             int pilihan = getInputInteger("Pilih menu (1-6): ");
-            
+
             switch (pilihan) {
                 case 1:
                     tambahMahasiswa();
@@ -30,7 +29,7 @@ public class SistemManajemenMahasiswa {
                     hapusMahasiswa();
                     break;
                 case 4:
-                    cariMahasiswaByNim();
+                    cariMahasiswaByNimBST();
                     break;
                 case 5:
                     tampilkanSemuaData();
@@ -42,20 +41,17 @@ public class SistemManajemenMahasiswa {
                 default:
                     System.out.println("Pilihan tidak valid! Silakan pilih 1-6.");
             }
-            
+
             if (running) {
                 System.out.println("\nTekan Enter untuk melanjutkan...");
                 scanner.nextLine();
                 clearScreen();
             }
         }
-        
+
         scanner.close();
     }
-    
-    /**
-     * Menampilkan menu utama aplikasi
-     */
+
     private static void tampilkanMenu() {
         System.out.println("1. Tambah Mahasiswa");
         System.out.println("2. Update Mahasiswa");
@@ -65,7 +61,7 @@ public class SistemManajemenMahasiswa {
         System.out.println("6. Keluar");
         System.out.println();
     }
-    
+
     /**
      * Fungsi untuk menambah mahasiswa baru
      */
@@ -74,7 +70,7 @@ public class SistemManajemenMahasiswa {
         
         String nim = getInputString("Masukkan NIM: ");
         String nama = getInputString("Masukkan Nama: ");
-        double ipk = getInputDouble("Masukkan IPK (0.00 - 4.00): ");
+        double ipk = getInputDoubleDenganValidasi("Masukkan IPK (0.00 - 4.00): ");
         String jurusan = getInputString("Masukkan Jurusan: ");
         
         // Validasi IPK
@@ -86,16 +82,16 @@ public class SistemManajemenMahasiswa {
         Mahasiswa mahasiswa = new Mahasiswa(nim, nama, ipk, jurusan);
         service.tambahMahasiswa(mahasiswa);
     }
-    
+
     /**
      * Fungsi untuk mencari mahasiswa berdasarkan NIM
      */
-    private static void cariMahasiswaByNim() {
+    private static void cariMahasiswaByNimBST() {
         System.out.println("\n=== CARI MAHASISWA BERDASARKAN NIM ===");
         String nim = getInputString("Masukkan NIM yang dicari: ");
         
         long startTime = System.nanoTime();
-        Mahasiswa mahasiswa = service.cariByNim(nim);
+        Mahasiswa mahasiswa = service.cariByNimBST(nim);
         long endTime = System.nanoTime();
         
         if (mahasiswa != null) {
@@ -107,7 +103,7 @@ public class SistemManajemenMahasiswa {
         
         System.out.printf("Waktu pencarian: %.6f ms\n", (endTime - startTime) / 1_000_000.0);
     }
-    
+
     /**
      * Fungsi untuk mengupdate data mahasiswa
      */
@@ -161,15 +157,15 @@ public class SistemManajemenMahasiswa {
             System.out.println("Penghapusan dibatalkan.");
         }
     }
-    
+
     /**
      * Fungsi untuk menampilkan semua data mahasiswa
      */
     private static void tampilkanSemuaData() {
         System.out.println();
-        service.tampilkanSemuaMahasiswa();
+        service.tampilkanSemuaMahasiswaTerurutNim();
     }
-    
+
     /**
      * Inisialisasi data sample untuk testing
      */
@@ -183,18 +179,18 @@ public class SistemManajemenMahasiswa {
         service.tambahMahasiswa(new Mahasiswa("12345007", "Agus Wijaya", 3.40, "Teknik Komputer"));
         service.tambahMahasiswa(new Mahasiswa("12345008", "Lina Maharani", 3.85, "Sistem Informasi"));
     }
-    
-    // Utility methods untuk input
+
+    // === Utilities input & UI ===
     private static String getInputString(String prompt) {
         System.out.print(prompt);
         return scanner.nextLine().trim();
     }
-    
+
     private static String getInputStringOptional(String prompt) {
         System.out.print(prompt);
         return scanner.nextLine().trim();
     }
-    
+
     private static int getInputInteger(String prompt) {
         while (true) {
             try {
@@ -206,19 +202,24 @@ public class SistemManajemenMahasiswa {
             }
         }
     }
-    
-    private static double getInputDouble(String prompt) {
+
+    private static double getInputDoubleDenganValidasi(String prompt) {
         while (true) {
             try {
                 System.out.print(prompt);
                 String input = scanner.nextLine().trim();
-                return Double.parseDouble(input);
+                double v = Double.parseDouble(input);
+                if (v < 0.0 || v > 4.0) {
+                    System.out.println("Error: IPK harus berada dalam rentang 0.00 - 4.00");
+                    continue;
+                }
+                return v;
             } catch (NumberFormatException e) {
                 System.out.println("Error: Masukkan angka desimal yang valid!");
             }
         }
     }
-    
+
     private static void clearScreen() {
         System.out.print("\033[2J\033[H");
         System.out.flush();
